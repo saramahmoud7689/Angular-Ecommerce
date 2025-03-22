@@ -1,0 +1,12 @@
+<nav class="navbar">
+  <div class="logo">
+    <a routerLink="/">Brand</a>
+  </div>
+  <div class="menu-toggle" (click)="toggleMenu()">☰</div>
+  <div class="nav-links" [ngClass]="{'show': menuOpen}">
+    <a routerLink="/" (click)="closeMenu()">Home</a>
+    <a routerLink="/about" (click)="closeMenu()">About</a>
+    <a routerLink="/services" (click)="closeMenu()">Services</a>
+    <a routerLink="/contact" (click)="closeMenu()">Contact</a>
+  </div>
+</nav>

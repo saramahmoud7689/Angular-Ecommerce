@@ -1,0 +1,33 @@
+<app-navbar></app-navbar> <!-- Include Navbar Here -->
+
+<div class="container">
+  <h2 class="title">All Products</h2>
+
+  <input type="text" placeholder="Search for products..." [(ngModel)]="searchQuery" (input)="filterProducts()" class="search-bar"/>
+
+  <div *ngIf="filteredProducts.length > 0; else noResults">
+    <div class="product-grid">
+      <div *ngFor="let product of filteredProducts" class="product-card" (click)="viewProduct(product._id)">
+        <div class="image-container">
+          <img [src]="product.images[0]" alt="{{ product.name }}" class="product-image" />
+          <span *ngIf="product?.priceAfterDiscount" class="discount-tag">Sale</span>
+        </div>
+        <div class="product-info">
+          <h3 class="product-name">{{ product.name }}</h3>
+          <p class="product-price">Price: <span>${{ product.price }}</span></p>
+          <p *ngIf="product?.priceAfterDiscount" class="discount-price">
+            Discounted: <span>${{ product.priceAfterDiscount }}</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #noResults>
+    <p class="no-results-text">No products found.</p>
+  </ng-template>
+</div>
+
+<ng-template #loading>
+  <p class="loading-text">Loading products...</p>
+</ng-template>
