@@ -1,0 +1,71 @@
+<div class="container d-flex justify-content-center align-items-center vh-100">
+    <div class="register-box shadow-lg rounded bg-white p-4">
+        <div *ngIf="errorMessage" class="alert alert-danger text-center">{{ errorMessage }}</div>
+        <h2 class="text-center text-primary mb-3">Register</h2>
+
+        <form [formGroup]="registerForm" (ngSubmit)="submitRegisterForm()">
+            <!-- First Name -->
+            <div class="mb-3">
+                <label for="firstName" class="fw-bold">First Name</label>
+                <input type="text" id="firstName" formControlName="firstName" class="form-control" (blur)="validateField('firstName')" (input)="clearError('firstName')">
+                <div *ngIf="firstNameError" class="text-danger">
+                    <small>{{ firstNameError }}</small>
+                </div>
+            </div>
+
+            <!-- Last Name -->
+            <div class="mb-3">
+                <label for="lastName" class="fw-bold">Last Name</label>
+                <input type="text" id="lastName" formControlName="lastName" class="form-control" (blur)="validateField('lastName')" (input)="clearError('lastName')">
+                <div *ngIf="lastNameError" class="text-danger">
+                    <small>{{ lastNameError }}</small>
+                </div>
+            </div>
+
+            <!-- Email -->
+            <div class="mb-3">
+                <label for="email" class="fw-bold">Email</label>
+                <input type="email" id="email" formControlName="email" class="form-control" (blur)="validateField('email')" (input)="clearError('email')">
+                <div *ngIf="emailError" class="text-danger">
+                    <small>{{ emailError }}</small>
+                </div>
+            </div>
+
+            <!-- Phone -->
+            <div class="mb-3">
+                <label for="phone" class="fw-bold">Phone</label>
+                <input type="text" id="phone" formControlName="phone" class="form-control" (blur)="validateField('phone')" (input)="clearError('phone')">
+                <div *ngIf="phoneError" class="text-danger">
+                    <small>{{ phoneError }}</small>
+                </div>
+            </div>
+
+            <!-- Password -->
+            <div class="mb-3">
+                <label for="password" class="fw-bold">Password</label>
+                <input type="password" id="password" formControlName="password" class="form-control" (blur)="validateField('password')" (input)="clearError('password')">
+                <div *ngIf="passwordError" class="text-danger">
+                    <small>{{ passwordError }}</small>
+                </div>
+            </div>
+
+            <!-- Age -->
+            <div class="mb-3">
+                <label for="age" class="fw-bold">Age</label>
+                <input type="number" id="age" formControlName="age" class="form-control" (blur)="validateField('age')" (input)="clearError('age')">
+                <div *ngIf="ageError" class="text-danger">
+                    <small>{{ ageError }}</small>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary w-100" [disabled]="registerForm.invalid">Register</button>
+
+            <!-- Login Link -->
+            <p class="text-center mt-2">
+                Already have an account?
+                <a [routerLink]="['/login']" class="text-decoration-none text-primary fw-bold">Login here</a>
+            </p>
+        </form>
+    </div>
+</div>

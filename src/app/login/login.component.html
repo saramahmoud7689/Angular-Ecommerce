@@ -1,0 +1,35 @@
+<div class="container d-flex justify-content-center align-items-center vh-100">
+    <div class="login-box shadow-lg rounded bg-white p-4">
+        <h2 class="text-center text-primary mb-3">Login</h2>
+        <form [formGroup]="LoginForm" (ngSubmit)="submitLoginForm()">
+            <!-- Email -->
+            <div class="mb-3">
+                <label for="email" class="fw-bold mb-1">Email</label>
+                <input type="email" id="email" formControlName="email" class="form-control" (blur)="validateField('email')" (input)="clearError('email')">
+
+                <div *ngIf="emailError" class="text-danger">
+                    <small>{{ emailError }}</small>
+                </div>
+            </div>
+
+            <!-- Password -->
+            <div class="mb-3">
+                <label for="password" class="fw-bold mb-1">Password</label>
+                <input type="password" id="password" formControlName="password" class="form-control" (blur)="validateField('password')" (input)="clearError('password')">
+
+                <div *ngIf="passwordError" class="text-danger">
+                    <small>{{ passwordError }}</small>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary w-100" [disabled]="LoginForm.invalid">Login</button>
+
+            <!-- Register Link -->
+            <p class="text-center mt-2">
+                Don't have an account?
+                <a [routerLink]="['/register']" class="text-decoration-none text-primary fw-bold">Register here</a>
+            </p>
+        </form>
+    </div>
+</div>
