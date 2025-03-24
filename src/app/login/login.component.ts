@@ -66,4 +66,7 @@ export class LoginComponent {
     if (field === 'email') this.emailError = '';
     if (field === 'password') this.passwordError = '';
   }
+
+  //TODO
+  // check if there is cart in local storage use add-to-cart api
 }

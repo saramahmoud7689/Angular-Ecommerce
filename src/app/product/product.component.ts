@@ -32,4 +32,8 @@ export class ProductComponent implements OnInit {
       );
     }
   }
+  // TODO
+  // check token in local storage
+  // if logged -> buy now
+  // else -> store in local storage (cart)
 }

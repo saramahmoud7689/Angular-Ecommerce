@@ -38,5 +38,10 @@ export class HomeComponent implements OnInit {
     console.log('Product clicked:', productId);
     this.router.navigate(['/product', productId]);  // ✅ Navigates to product details page
   }
+
+  // TODO
+  // check token in local storage
+  // if logged -> buy now
+  // else -> store in local storage (cart)
   
 }
