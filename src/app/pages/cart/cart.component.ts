@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CartService } from '../../services/cart.service';
 import { NgIf , NgFor } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-cart',
@@ -12,7 +13,7 @@ export class CartComponent implements OnInit {
   cartItems: any[] = [];
   totalPrice: number = 0;
 
-  constructor(private cartService: CartService) {}
+  constructor(private cartService: CartService, private router: Router) {}
 
   ngOnInit(): void {
     this.loadCart();
@@ -34,10 +35,7 @@ export class CartComponent implements OnInit {
     this.cartService.removeFromCart(productId).subscribe(() => this.loadCart());
   }
 
-  addToCart() {
-    this.cartService.addToCart().subscribe(() => {
-      alert('Order placed successfully!');
-      this.loadCart();
-    });
+  checkout() {
+    this.router.navigate(['/payment']);
   }
 }
