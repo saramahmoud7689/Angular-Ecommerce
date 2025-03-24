@@ -1,11 +1,12 @@
-import { Routes } from '@angular/router';
-// import { HomeComponent } from './pages/home/home.component'; //sara test
+import { RouterModule, Routes } from '@angular/router';
+import { NgModule } from '@angular/core';
 import { CartComponent } from './pages/cart/cart.component';
 import { PaymentComponent } from './pages/payment/payment.component';
 import { HomeComponent } from './home/home.component';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 import { LogoutComponent } from './logout/logout.component';
+import { ProductComponent } from './product/product.component';
 
 // export const routes: Routes = [
 //   { path: '', component: HomeComponent },
@@ -43,7 +44,18 @@ export const routes: Routes = [
   { 
     path: 'payment', 
     component: PaymentComponent 
-  }
+  },
+  { 
+    path: 'product/:id',
+     component: ProductComponent 
+    },
 
 ];
+
+
+@NgModule({
+  imports: [RouterModule.forRoot(routes)],
+  exports: [RouterModule],
+})
+export class AppRoutingModule {}
 
