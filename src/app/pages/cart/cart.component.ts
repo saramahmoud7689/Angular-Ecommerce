@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CartService } from '../../services/cart.service';
+import { NgIf , NgFor } from '@angular/common';
 
 @Component({
   selector: 'app-cart',
+  imports: [NgFor,NgIf],
   templateUrl: './cart.component.html',
   styleUrls: ['./cart.component.css']
 })
@@ -19,6 +21,7 @@ export class CartComponent implements OnInit {
   loadCart() {
     this.cartService.getCart().subscribe(data => {
       this.cartItems = data.user_Cart;
+      console.log(data.user_Cart);
       this.calculateTotal();
     });
   }
@@ -31,8 +34,8 @@ export class CartComponent implements OnInit {
     this.cartService.removeFromCart(productId).subscribe(() => this.loadCart());
   }
 
-  checkout() {
-    this.cartService.checkout().subscribe(() => {
+  addToCart() {
+    this.cartService.addToCart().subscribe(() => {
       alert('Order placed successfully!');
       this.loadCart();
     });
