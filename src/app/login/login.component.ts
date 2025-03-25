@@ -1,12 +1,14 @@
+// login.component.ts
 import { Component } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../services/auth.service';
+import { CartService } from '../services/cart.service'; // Add this import
 import { Router, RouterLink } from '@angular/router';
 import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-login',
-  imports:[NgIf,ReactiveFormsModule,RouterLink],
+  imports: [NgIf, ReactiveFormsModule, RouterLink],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
@@ -19,7 +21,11 @@ export class LoginComponent {
     password: new FormControl('', [Validators.required])
   });
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService,
+    private cartService: CartService, // Add this
+    private router: Router
+  ) {}
 
   submitLoginForm() {
     if (this.LoginForm.valid) {
@@ -31,7 +37,18 @@ export class LoginComponent {
           if (response.message === 'success') {
             localStorage.setItem("userToken", response.token);
             this.authService.savUserData();
-            this.router.navigate(['/home']);
+            
+            // Sync local cart with backend after successful login
+            this.cartService.syncLocalCart()?.subscribe({
+              next: () => {
+                this.cartService.clearLocalCart(); // Clear local cart after successful sync
+                this.router.navigate(['/home']);
+              },
+              error: (err) => {
+                console.error('Error syncing cart:', err);
+                this.router.navigate(['/home']); // Navigate even if sync fails
+              }
+            });
           }
         },
         error: (err) => {
@@ -66,7 +83,4 @@ export class LoginComponent {
     if (field === 'email') this.emailError = '';
     if (field === 'password') this.passwordError = '';
   }
-
-  //TODO
-  // check if there is cart in local storage use add-to-cart api
 }

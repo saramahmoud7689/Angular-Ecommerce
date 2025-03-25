@@ -60,4 +60,21 @@ export class CartService {
 
     return this.http.post(`${this.apiUrl}/add-to-cart`, {}, { headers });
   }
+
+  // New method to sync local cart with backend after login
+  syncLocalCart(): Observable<any> | void {
+    const token = localStorage.getItem('userToken');
+    if (!token) return;
+
+    const localCart = JSON.parse(`localStorage.getItem('cart')  '[]'`);
+    if (localCart.length > 0) {
+      const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+      return this.http.post(`${this.apiUrl}/add-to-cart`, { productIds: localCart }, { headers });
+    }
+  }
+
+  // Clear local cart after successful sync
+  clearLocalCart() {
+    localStorage.removeItem('cart');
+  }
 }

@@ -3,13 +3,19 @@ import { Component } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { NgIf } from '@angular/common';
 
+import { ChangeDetectorRef, OnInit } from '@angular/core';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';  // ✅ Import FormsModule for ngModel
+
 @Component({
   selector: 'app-navbar',
-  imports: [RouterLink , NgIf],
+  imports: [RouterLink , NgIf, HttpClientModule, CommonModule, FormsModule],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css'
 })
 export class NavbarComponent {
+
   constructor(private AuthService:AuthService,private router:Router){}
 
   isLogin:boolean=false;
@@ -34,5 +40,6 @@ export class NavbarComponent {
         }
       }
     })
+    
   }
 }

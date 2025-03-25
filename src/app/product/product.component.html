@@ -1,25 +1,34 @@
 <div class="container" *ngIf="product">
-    <div class="product-card">
-      <!-- Left: Product Image -->
-      <div class="product-image-container">
-        <img [src]="product.images[0]" alt="{{ product.name }}" class="product-image" />
+  <div class="product-card">
+    <!-- Left: Product Image -->
+    <div class="product-image-container">
+      <img [src]="product.images[0]" alt="{{ product.name }}" class="product-image" />
+    </div>
+
+    <!-- Right: Product Details -->
+    <div class="product-info">
+      <h2 class="product-title">{{ product.name }}</h2>
+      <p class="product-price">Price: <span>${{ product.price }}</span></p>
+
+      <p *ngIf="product.priceAfterDiscount" class="discount-price">
+        Discounted: <span>${{ product.priceAfterDiscount }}</span>
+      </p>
+
+      <p *ngIf="product.promoCode" class="promo-code">
+        Promo Code: <span>{{ product.promoCode }}</span>
+      </p>
+
+      <!-- Quantity Counter -->
+      <div class="quantity-container">
+        <button class="quantity-btn" (click)="decreaseQuantity()">-</button>
+        <span class="quantity">{{ quantity }}</span>
+        <button class="quantity-btn" (click)="increaseQuantity()">+</button>
       </div>
-  
-      <!-- Right: Product Details -->
-      <div class="product-info">
-        <h2 class="product-title">{{ product.name }}</h2>
-        <p class="product-price">Price: <span>${{ product.price }}</span></p>
-  
-        <p *ngIf="product.priceAfterDiscount" class="discount-price">
-          Discounted: <span>${{ product.priceAfterDiscount }}</span>
-        </p>
-  
-        <p *ngIf="product.promoCode" class="promo-code">
-          Promo Code: <span>{{ product.promoCode }}</span>
-        </p>
-  
-        <button class="buy-now">Buy Now</button>
+
+      <div class="product-card">
+        <button class="buy-now" (click)="addToCart()">Buy Now</button>
       </div>
+
     </div>
   </div>
-  
+</div>
