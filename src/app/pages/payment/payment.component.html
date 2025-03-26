@@ -1,4 +1,17 @@
 <h2>Payment</h2>
+
+<!-- Promo Code Input -->
+<div>
+  <label>Promo Code (optional):</label>
+  <input
+    type="text"
+    [(ngModel)]="promoCode"
+    name="promoCode"
+    placeholder="Enter promo code"
+  />
+</div>
+
+<!-- Payment Method Selection -->
 <label>Select Payment Method:</label>
 <select [(ngModel)]="paymentMethod" (ngModelChange)="onPaymentMethodChange()">
   <option value="credit_card">Credit Card</option>
