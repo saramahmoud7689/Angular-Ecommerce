@@ -37,12 +37,12 @@ export class LoginComponent {
           if (response.message === 'success') {
             localStorage.setItem("userToken", response.token);
             this.authService.savUserData();
-            
+            this.router.navigate(['/home']);
             // Sync local cart with backend after successful login
             this.cartService.syncLocalCart()?.subscribe({
               next: () => {
                 this.cartService.clearLocalCart(); // Clear local cart after successful sync
-                this.router.navigate(['/home']);
+                
               },
               error: (err) => {
                 console.error('Error syncing cart:', err);
