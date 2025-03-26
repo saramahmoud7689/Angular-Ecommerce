@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs'; // Import 'of'
 import { jwtDecode } from 'jwt-decode';
 import { Router } from '@angular/router';
 
@@ -11,7 +11,6 @@ export class CartService {
   private apiUrl = 'http://localhost:3000/api/cart';
 
   constructor(private http: HttpClient, private router: Router) {
-    console.log(localStorage.getItem('userToken'));
     if (localStorage.getItem('userToken')) {
       this.saveUserData();
     }
@@ -20,11 +19,10 @@ export class CartService {
   userData: any = new BehaviorSubject(null);
 
   saveUserData() {
-    let encodedToken = localStorage.getItem('userToken'); // No need to use JSON.stringify
+    let encodedToken = localStorage.getItem('userToken');
     if (!encodedToken) return;
 
     console.log("Encoded Token:", encodedToken);
-    
     try {
       let decodedToken: any = jwtDecode(encodedToken);
       console.log("Decoded Token:", decodedToken);
@@ -34,46 +32,42 @@ export class CartService {
     }
   }
 
-  /** ✅ FIX: Attach the token to the request */
   getCart(): Observable<any> {
-    const token = localStorage.getItem('userToken'); // Ensure token retrieval
+    const token = localStorage.getItem('userToken');
     if (!token) {
       console.error("No token found in localStorage!");
-      return new Observable(); // Return an empty observable to avoid errors
+      return of(null); // Return an empty observable
     }
 
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-
     return this.http.get<any>(`${this.apiUrl}/get-cart`, { headers });
   }
 
   removeFromCart(productId: string) {
     const token = localStorage.getItem('userToken');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-
     return this.http.patch(`${this.apiUrl}/remove-from-cart`, { productId }, { headers });
   }
 
   addToCart() {
     const token = localStorage.getItem('userToken');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-
     return this.http.post(`${this.apiUrl}/add-to-cart`, {}, { headers });
   }
 
-  // New method to sync local cart with backend after login
-  syncLocalCart(): Observable<any> | void {
+  syncLocalCart(localCart: any[]): Observable<any> {
     const token = localStorage.getItem('userToken');
-    if (!token) return;
+    if (!token) {
+      return of(null); // Return an observable even if no token
+    }
 
-    const localCart = JSON.parse(`localStorage.getItem('cart')  '[]'`);
     if (localCart.length > 0) {
       const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-      return this.http.post(`${this.apiUrl}/add-to-cart`, { productIds: localCart }, { headers });
+      return this.http.post(`${this.apiUrl}/add-to-cart`, { products: localCart }, { headers });
     }
+    return of(null); // Return an observable if no items to sync
   }
 
-  // Clear local cart after successful sync
   clearLocalCart() {
     localStorage.removeItem('cart');
   }

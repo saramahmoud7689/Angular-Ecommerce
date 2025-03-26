@@ -1,8 +1,7 @@
-// login.component.ts
 import { Component } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../services/auth.service';
-import { CartService } from '../services/cart.service'; // Add this import
+import { CartService } from '../services/cart.service';
 import { Router, RouterLink } from '@angular/router';
 import { NgIf } from '@angular/common';
 
@@ -23,34 +22,38 @@ export class LoginComponent {
 
   constructor(
     private authService: AuthService,
-    private cartService: CartService, // Add this
+    private cartService: CartService,
     private router: Router
   ) {}
 
   submitLoginForm() {
     if (this.LoginForm.valid) {
-      this.emailError = '';
-      this.passwordError = '';
-
+      // ... authentication logic ...
+      
       this.authService.signin(this.LoginForm.value).subscribe({
         next: (response) => {
-          if (response.message === 'success') {
-            localStorage.setItem("userToken", response.token);
-            this.authService.savUserData();
-            this.router.navigate(['/home']);
-            // Sync local cart with backend after successful login
-            this.cartService.syncLocalCart()?.subscribe({
-              next: () => {
-                this.cartService.clearLocalCart(); // Clear local cart after successful sync
-                
-              },
-              error: (err) => {
-                console.error('Error syncing cart:', err);
-                this.router.navigate(['/home']); // Navigate even if sync fails
+              if (response.message === 'success') {
+                  localStorage.setItem("userToken", response.token);
+                  this.authService.savUserData();
+
+                  // Get cart from local storage
+                  const localCart = JSON.parse(localStorage.getItem('cart') || '[]');
+                  
+                  // Sync with server
+                  this.cartService.syncLocalCart(localCart).subscribe({
+                      next: (result) => {
+                          if (result) { // Check if sync actually happened
+                              this.cartService.clearLocalCart();
+                          }
+                          this.router.navigate(['/home']);
+                      },
+                      error: (err: any) => {
+                          console.error('Error syncing cart:', err);
+                          this.router.navigate(['/home']);
+                      }
+                  });
               }
-            });
-          }
-        },
+          },
         error: (err) => {
           console.log('API Error:', err);
           if (err.error.message === 'User not found') {
