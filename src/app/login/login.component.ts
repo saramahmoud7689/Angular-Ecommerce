@@ -3,11 +3,12 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { AuthService } from '../services/auth.service';
 import { CartService } from '../services/cart.service';
 import { Router, RouterLink } from '@angular/router';
-import { NgIf } from '@angular/common';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-login',
-  imports: [NgIf, ReactiveFormsModule, RouterLink],
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
@@ -28,45 +29,55 @@ export class LoginComponent {
 
   submitLoginForm() {
     if (this.LoginForm.valid) {
-      // ... authentication logic ...
-      
+      this.emailError = '';
+      this.passwordError = '';
+
       this.authService.signin(this.LoginForm.value).subscribe({
         next: (response) => {
-              if (response.message === 'success') {
-                  localStorage.setItem("userToken", response.token);
-                  this.authService.savUserData();
+          if (response.message === 'success') {
+            localStorage.setItem("userToken", response.token);
+            this.authService.savUserData();
 
-                  // Get cart from local storage
-                  const localCart = JSON.parse(localStorage.getItem('cart') || '[]');
-                  
-                  // Sync with server
-                  this.cartService.syncLocalCart(localCart).subscribe({
-                      next: (result) => {
-                          if (result) { // Check if sync actually happened
-                              this.cartService.clearLocalCart();
-                          }
-                          this.router.navigate(['/home']);
-                      },
-                      error: (err: any) => {
-                          console.error('Error syncing cart:', err);
-                          this.router.navigate(['/home']);
-                      }
-                  });
-              }
-          },
-        error: (err) => {
-          console.log('API Error:', err);
-          if (err.error.message === 'User not found') {
-            this.emailError = 'This email does not exist. Please register first.';
-          } else if (err.error.message === 'user not confirmed yet!') {
-            this.emailError = 'Your account is not confirmed. Please check your email.';
-          } else if (err.error.message === 'Invalid credentials') {
-            this.passwordError = 'Incorrect password. Please try again.';
-          } else {
-            this.emailError = 'Something went wrong. Please try again.';
+            const localCart = JSON.parse(localStorage.getItem('cart') || '[]');
+            if (localCart.length > 0) {
+              this.cartService.syncLocalCart(localCart).subscribe({
+                next: () => {
+                  this.cartService.clearLocalCart();
+                  this.router.navigate(['/home']);
+                },
+                error: (err) => {
+                  console.error('Cart sync error:', err);
+                  this.router.navigate(['/home']);
+                }
+              });
+            } else {
+              this.router.navigate(['/home']);
+            }
           }
+        },
+        error: (err) => {
+          this.handleLoginError(err);
         }
       });
+    }
+  }
+
+  private handleLoginError(err: any) {
+    console.log('Login error:', err);
+    const errorMessage = err.error?.message;
+
+    switch(errorMessage) {
+      case 'User not found':
+        this.emailError = 'This email does not exist. Please register first.';
+        break;
+      case 'user not confirmed yet!':
+        this.emailError = 'Your account is not confirmed. Please check your email.';
+        break;
+      case 'Invalid credentials':
+        this.passwordError = 'Incorrect password. Please try again.';
+        break;
+      default:
+        this.emailError = 'Login failed. Please try again.';
     }
   }
 

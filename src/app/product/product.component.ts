@@ -48,7 +48,7 @@ export class ProductComponent implements OnInit {
 
 
   addToCart() {
-    const productId = this.product._id;
+    const _id = this.product._id;
     const token = localStorage.getItem('userToken');
 
     // Check if quantity exceeds available stock
@@ -61,7 +61,7 @@ export class ProductComponent implements OnInit {
       // User is logged in, send API request
       const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-      this.http.post(this.baseUrl, { productId, quantity: this.quantity }, { headers }).subscribe({
+      this.http.post(this.baseUrl, { _id, quantity: this.quantity }, { headers }).subscribe({
         next: () => alert('Product added to cart successfully!'),
         error: (err) => {
           alert(err.error.message || 'Failed to add product to cart.');
@@ -72,7 +72,7 @@ export class ProductComponent implements OnInit {
       let cart = JSON.parse(localStorage.getItem('cart') || '[]');
 
       // Check if product is already in cart
-      const existingProduct = cart.find((p: any) => p.productId === productId);
+      const existingProduct = cart.find((p: any) => p._id === _id);
       if (existingProduct) {
         if (existingProduct.quantity + this.quantity > this.product.quantity) {
           alert(`Only ${this.product.quantity} items are available in stock.`);
@@ -80,7 +80,7 @@ export class ProductComponent implements OnInit {
         }
         existingProduct.quantity += this.quantity;
       } else {
-        cart.push({ productId, quantity: this.quantity });
+        cart.push({ _id, quantity: this.quantity ,productId:{imageCover: this.product.imageCover, name: this.product.name, price: this.product.price, priceAfterDiscount: this.product.priceAfterDiscount} });
       }
 
       localStorage.setItem('cart', JSON.stringify(cart));

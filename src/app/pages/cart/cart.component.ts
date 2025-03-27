@@ -26,10 +26,17 @@ export class CartComponent implements OnInit {
   }
 
   loadCart() {
-    this.cartService.getCart().subscribe(data => {
-      this.cartItems = data.user_Cart;
+    if(!localStorage.getItem('userToken')) {
+      this.cartItems = JSON.parse(localStorage.getItem('cart') || '[]');
       this.calculateTotal();
-    });
+    }else{
+      this.cartService.getCart().subscribe(data => {
+        this.cartItems = data.user_Cart;
+        this.calculateTotal();
+        console.log(this.cartItems);
+      });
+    }
+    console.log(this.cartItems);
   }
 
   calculateTotal() {
@@ -62,6 +69,36 @@ export class CartComponent implements OnInit {
   }
 
   checkout() {
+    // Check authentication
+    if (!this.canMakePayment()) {
+      this.router.navigate(['/login']);
+      return;
+    }
     this.router.navigate(['/payment']);
   }
+
+  // Authentication guard logic
+  canMakePayment(): boolean {
+    const isAuthenticated = !!localStorage.getItem('userToken');
+    if (!isAuthenticated) {
+      alert('You must be logged in to make a payment.');
+      // this.router.navigate(['/login']);
+    }
+    return isAuthenticated;
+  }
+
+  //TODO: Implement quantity change with API
+  increaseQuantity(item: any) {
+    item.quantity++;
+    this.calculateTotal();
+  }
+
+  //TODO: Implement quantity change with API
+  decreaseQuantity(item: any) {
+    if (item.quantity > 1) {
+      item.quantity--;
+      this.calculateTotal();
+    }
+  }
+
 }

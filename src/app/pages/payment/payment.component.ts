@@ -3,6 +3,8 @@ import { PaymentService } from '../../services/payment.service';
 import { NgIf, NgFor } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 
+import { Router } from '@angular/router';
+
 @Component({
   selector: 'app-payment',
   standalone: true,
@@ -27,7 +29,7 @@ export class PaymentComponent implements OnInit {
     email: '',
   };
 
-  constructor(private paymentService: PaymentService) {}
+  constructor(private paymentService: PaymentService, private router: Router) {}
 
   ngOnInit(): void {}
 
@@ -41,11 +43,6 @@ export class PaymentComponent implements OnInit {
   makePayment() {
     if (!this.paymentMethod) {
       alert('Please select a payment method.');
-      return;
-    }
-
-    // Check authentication
-    if (!this.canMakePayment()) {
       return;
     }
 
@@ -81,19 +78,12 @@ export class PaymentComponent implements OnInit {
           // Optionally reset forms or redirect user
           this.onPaymentMethodChange();
           this.promoCode = '';
+          this.router.navigate(['/home']);
         },
         error: (error) => {
           alert('❌ Checkout failed: ' + error.error.message);
+          this.router.navigate(['/login']);
         },
       });
-  }
-
-  // Authentication guard logic
-  canMakePayment(): boolean {
-    const isAuthenticated = !!localStorage.getItem('userToken');
-    if (!isAuthenticated) {
-      alert('You must be logged in to make a payment.');
-    }
-    return isAuthenticated;
   }
 }

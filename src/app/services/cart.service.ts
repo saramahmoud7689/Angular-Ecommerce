@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, Observable, of } from 'rxjs'; // Import 'of'
+import { BehaviorSubject, Observable, of, from } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
 import { Router } from '@angular/router';
+import { concatMap, last, map, catchError } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -22,50 +23,94 @@ export class CartService {
     let encodedToken = localStorage.getItem('userToken');
     if (!encodedToken) return;
 
-    console.log("Encoded Token:", encodedToken);
     try {
       let decodedToken: any = jwtDecode(encodedToken);
-      console.log("Decoded Token:", decodedToken);
       this.userData.next(decodedToken);
     } catch (error) {
       console.error("Invalid Token:", error);
     }
   }
 
+  addToCart(product: any): Observable<any> {
+    const token = localStorage.getItem('userToken');
+    if (!token) {
+      let localCart = JSON.parse(`localStorage.getItem('cart')  '[]'`);
+      const existingItem = localCart.find((item: any) => item.productId === product._id);
+
+      if (existingItem) {
+        existingItem.quantity += 1;
+      } else {
+        localCart.push({
+          productId: product._id,
+          quantity: 1,
+          productDetails: product
+        });
+      }
+
+      localStorage.setItem('cart', JSON.stringify(localCart));
+      return of(localCart);
+    } else {
+      const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+      return this.http.post(`${this.apiUrl}/add-to-cart`, {
+        productId: product._id,
+        quantity: 1
+      }, { headers });
+    }
+  }
+
   getCart(): Observable<any> {
     const token = localStorage.getItem('userToken');
     if (!token) {
-      console.error("No token found in localStorage!");
-      return of(null); // Return an empty observable
+      const localCart = JSON.parse(`localStorage.getItem('cart')  '[]'`);
+      return of(localCart);
     }
-
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
     return this.http.get<any>(`${this.apiUrl}/get-cart`, { headers });
   }
 
-  removeFromCart(productId: string) {
+  removeFromCart(productId: string): Observable<any> {
     const token = localStorage.getItem('userToken');
+    if (!token) {
+      let localCart = JSON.parse(`localStorage.getItem('cart')  '[]'`);
+      localCart = localCart.filter((item: any) => item.productId !== productId);
+      localStorage.setItem('cart', JSON.stringify(localCart));
+      return of(localCart);
+    }
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
     return this.http.patch(`${this.apiUrl}/remove-from-cart`, { productId }, { headers });
-  }
-
-  addToCart() {
-    const token = localStorage.getItem('userToken');
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    return this.http.post(`${this.apiUrl}/add-to-cart`, {}, { headers });
   }
 
   syncLocalCart(localCart: any[]): Observable<any> {
     const token = localStorage.getItem('userToken');
     if (!token) {
-      return of(null); // Return an observable even if no token
+      return of(null);
     }
 
-    if (localCart.length > 0) {
-      const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-      return this.http.post(`${this.apiUrl}/add-to-cart`, { products: localCart }, { headers });
-    }
-    return of(null); // Return an observable if no items to sync
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+    // Process items sequentially
+    return from(localCart).pipe(
+      concatMap((item: any) =>
+        this.http.post(`${this.apiUrl}/add-to-cart`, {
+          productId: item._id,
+          quantity: item.quantity || 1
+        }, { headers }).pipe(
+          catchError((err: any) => {
+            console.error('Error syncing item:', item, err);
+            return of(null);
+          })
+        )
+      ),
+      last(),
+      map(() => {
+        this.clearLocalCart();
+        return true;
+      }),
+      catchError((err: any) => {
+        console.error('Final sync error:', err);
+        return of(false);
+      })
+    );
   }
 
   clearLocalCart() {
