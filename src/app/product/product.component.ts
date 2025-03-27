@@ -51,17 +51,20 @@ export class ProductComponent implements OnInit {
     const _id = this.product._id;
     const token = localStorage.getItem('userToken');
 
+    console.log(_id)
     // Check if quantity exceeds available stock
     if (this.quantity > this.product.quantity) {
       alert(`not enough stock available`);
       return;
     }
 
+
     if (token) {
       // User is logged in, send API request
+      // const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
       const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-      this.http.post(this.baseUrl, { _id, quantity: this.quantity }, { headers }).subscribe({
+      this.http.post(this.baseUrl, { productId: _id, quantity: this.quantity }, { headers }).subscribe({
         next: () => alert('Product added to cart successfully!'),
         error: (err) => {
           alert(err.error.message || 'Failed to add product to cart.');
